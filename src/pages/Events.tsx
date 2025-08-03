@@ -2,6 +2,12 @@ import React, { useState } from 'react';
 import { Button } from '../components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
 import { Badge } from '../components/ui/badge';
+import { Input } from '../components/ui/input';
+import { Textarea } from '../components/ui/textarea';
+import { Label } from '../components/ui/label';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '../components/ui/dialog';
+import { useAuth } from '../contexts/AuthContext';
+import { useToast } from '../hooks/use-toast';
 
 interface Event {
   id: number;
@@ -15,7 +21,9 @@ interface Event {
 }
 
 const Events = () => {
-  const [events] = useState<Event[]>([
+  const { isAdmin } = useAuth();
+  const { toast } = useToast();
+  const [events, setEvents] = useState<Event[]>([
     {
       id: 1,
       title: 'Annual Community Gathering',
@@ -58,6 +66,17 @@ const Events = () => {
     }
   ]);
 
+  const [newEvent, setNewEvent] = useState({
+    title: '',
+    date: '',
+    time: '',
+    location: '',
+    description: '',
+    category: 'social'
+  });
+
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+
   const getCategoryColor = (category: string) => {
     switch (category) {
       case 'festival': return 'bg-accent text-accent-foreground';
@@ -74,6 +93,44 @@ const Events = () => {
       year: 'numeric',
       month: 'long',
       day: 'numeric'
+    });
+  };
+
+  const handleAddEvent = () => {
+    if (!newEvent.title || !newEvent.date || !newEvent.time || !newEvent.location) {
+      toast({
+        title: "Error",
+        description: "Please fill in all required fields",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const event: Event = {
+      id: events.length + 1,
+      title: newEvent.title,
+      date: newEvent.date,
+      time: newEvent.time,
+      location: newEvent.location,
+      description: newEvent.description,
+      category: newEvent.category as any,
+      attendees: 0
+    };
+
+    setEvents([...events, event]);
+    setNewEvent({
+      title: '',
+      date: '',
+      time: '',
+      location: '',
+      description: '',
+      category: 'social'
+    });
+    setIsDialogOpen(false);
+    
+    toast({
+      title: "Success",
+      description: "Event added successfully!",
     });
   };
 
@@ -131,10 +188,96 @@ const Events = () => {
         </div>
 
         <div className="text-center mt-12">
-          <Button size="lg" className="bg-accent hover:bg-accent/90 text-accent-foreground">
-            <i className="fas fa-plus mr-2"></i>
-            Add New Event
-          </Button>
+          {isAdmin && (
+            <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+              <DialogTrigger asChild>
+                <Button size="lg" className="bg-accent hover:bg-accent/90 text-accent-foreground">
+                  <i className="fas fa-plus mr-2"></i>
+                  Add New Event
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="sm:max-w-[425px]">
+                <DialogHeader>
+                  <DialogTitle>Add New Event</DialogTitle>
+                  <DialogDescription>
+                    Create a new event for the family community.
+                  </DialogDescription>
+                </DialogHeader>
+                <div className="grid gap-4 py-4">
+                  <div className="grid gap-2">
+                    <Label htmlFor="title">Event Title</Label>
+                    <Input
+                      id="title"
+                      value={newEvent.title}
+                      onChange={(e) => setNewEvent({...newEvent, title: e.target.value})}
+                      placeholder="Enter event title"
+                    />
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="grid gap-2">
+                      <Label htmlFor="date">Date</Label>
+                      <Input
+                        id="date"
+                        type="date"
+                        value={newEvent.date}
+                        onChange={(e) => setNewEvent({...newEvent, date: e.target.value})}
+                      />
+                    </div>
+                    <div className="grid gap-2">
+                      <Label htmlFor="time">Time</Label>
+                      <Input
+                        id="time"
+                        type="time"
+                        value={newEvent.time}
+                        onChange={(e) => setNewEvent({...newEvent, time: e.target.value})}
+                      />
+                    </div>
+                  </div>
+                  <div className="grid gap-2">
+                    <Label htmlFor="location">Location</Label>
+                    <Input
+                      id="location"
+                      value={newEvent.location}
+                      onChange={(e) => setNewEvent({...newEvent, location: e.target.value})}
+                      placeholder="Enter event location"
+                    />
+                  </div>
+                  <div className="grid gap-2">
+                    <Label htmlFor="category">Category</Label>
+                    <select
+                      id="category"
+                      value={newEvent.category}
+                      onChange={(e) => setNewEvent({...newEvent, category: e.target.value})}
+                      className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background"
+                    >
+                      <option value="social">Social</option>
+                      <option value="festival">Festival</option>
+                      <option value="meeting">Meeting</option>
+                      <option value="religious">Religious</option>
+                    </select>
+                  </div>
+                  <div className="grid gap-2">
+                    <Label htmlFor="description">Description</Label>
+                    <Textarea
+                      id="description"
+                      value={newEvent.description}
+                      onChange={(e) => setNewEvent({...newEvent, description: e.target.value})}
+                      placeholder="Enter event description"
+                      rows={3}
+                    />
+                  </div>
+                </div>
+                <div className="flex justify-end gap-2">
+                  <Button variant="outline" onClick={() => setIsDialogOpen(false)}>
+                    Cancel
+                  </Button>
+                  <Button onClick={handleAddEvent}>
+                    Add Event
+                  </Button>
+                </div>
+              </DialogContent>
+            </Dialog>
+          )}
         </div>
       </div>
     </div>

@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Button } from './ui/button';
+import { useAuth } from '../contexts/AuthContext';
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const location = useLocation();
+  const { user, logout, isAdmin } = useAuth();
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
@@ -36,6 +38,22 @@ const Header = () => {
               <span className="text-primary font-semibold px-3 py-1 bg-primary/10 rounded">Family Dashboard</span>
               <span className="text-secondary font-semibold px-3 py-1 bg-secondary/10 rounded">Community</span>
               <span className="text-accent font-semibold px-3 py-1 bg-accent/10 rounded">Directory</span>
+              <div className="flex items-center gap-2">
+                <span className="text-muted-foreground">Welcome, {user?.username}</span>
+                {isAdmin && (
+                  <Link to="/admin" className="text-primary hover:underline">
+                    Admin
+                  </Link>
+                )}
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  onClick={logout}
+                  className="text-destructive hover:bg-destructive/10"
+                >
+                  Logout
+                </Button>
+              </div>
             </div>
           </div>
         </div>
@@ -114,6 +132,28 @@ const Header = () => {
                   >
                     <i className="fas fa-bell mr-2"></i>
                     Updates
+                  </Button>
+                </li>
+                {isAdmin && (
+                  <li>
+                    <Link
+                      to="/admin"
+                      className="block text-white hover:text-accent transition-colors duration-300 text-sm font-medium py-1"
+                      onClick={() => setIsMenuOpen(false)}
+                    >
+                      Admin Panel
+                    </Link>
+                  </li>
+                )}
+                <li>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={logout}
+                    className="text-white hover:text-accent hover:bg-white/10 justify-start px-0"
+                  >
+                    <i className="fas fa-sign-out-alt mr-2"></i>
+                    Logout
                   </Button>
                 </li>
               </ul>
