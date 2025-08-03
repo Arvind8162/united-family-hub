@@ -7,47 +7,47 @@
 
 @layer base {
   :root {
-    /* Family Dashboard Color Palette */
-    --background: 212 14% 96%;
-    --foreground: 210 100% 20%;
+    /* The United Family inspired Color Palette */
+    --background: 0 0% 97%;
+    --foreground: 0 0% 20%;
 
     --card: 0 0% 100%;
-    --card-foreground: 210 100% 20%;
+    --card-foreground: 0 0% 20%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 210 100% 20%;
+    --popover-foreground: 0 0% 20%;
 
-    /* Primary - Deep Blue */
-    --primary: 210 100% 20%;
+    /* Primary - Red like The United Family */
+    --primary: 355 70% 54%;
     --primary-foreground: 0 0% 100%;
-    --primary-hover: 210 100% 15%;
+    --primary-hover: 355 70% 45%;
 
-    /* Secondary - Light Blue */
-    --secondary: 210 100% 25%;
-    --secondary-foreground: 0 0% 100%;
+    /* Secondary - Yellow accent */
+    --secondary: 45 100% 51%;
+    --secondary-foreground: 0 0% 20%;
 
-    /* Accent - Golden Yellow */
-    --accent: 51 100% 50%;
-    --accent-foreground: 210 100% 20%;
+    /* Accent - Yellow */
+    --accent: 45 100% 51%;
+    --accent-foreground: 0 0% 20%;
 
     /* Muted backgrounds */
-    --muted: 210 40% 96%;
-    --muted-foreground: 210 20% 40%;
+    --muted: 0 0% 96%;
+    --muted-foreground: 0 0% 45%;
 
     /* Borders and inputs */
-    --border: 214 31% 91%;
-    --input: 214 31% 91%;
-    --ring: 210 100% 20%;
+    --border: 0 0% 89%;
+    --input: 0 0% 89%;
+    --ring: 355 70% 54%;
 
-    /* Dashboard specific */
-    --dashboard-bg: 212 14% 96%;
-    --card-shadow: 210 20% 85%;
-    --card-hover: 210 100% 97%;
+    /* Dashboard specific - dark background with pattern */
+    --dashboard-bg: 0 0% 18%;
+    --card-shadow: 0 0% 0% / 0.1;
+    --card-hover: 0 0% 96%;
     
-    /* Navigation */
-    --nav-background: 210 100% 20%;
-    --nav-text: 0 0% 100%;
-    --nav-hover: 51 100% 50%;
+    /* Navigation - white header */
+    --nav-background: 0 0% 100%;
+    --nav-text: 0 0% 45%;
+    --nav-hover: 355 70% 54%;
 
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 100%;
@@ -116,6 +116,9 @@
   }
 
   body {
-    @apply bg-background text-foreground;
+    @apply bg-dashboard-bg text-foreground;
+    background-image: 
+      radial-gradient(circle at 1px 1px, rgba(255,255,255,0.15) 1px, transparent 0);
+    background-size: 20px 20px;
   }
 }

@@ -26,12 +26,34 @@ const Home = () => {
 
   return (
     <main className="min-h-screen bg-dashboard-bg">
-      <div className="container mx-auto px-6 py-12">
+      {/* Hero Section - inspired by The United Family */}
+      <div className="relative py-20 px-4">
+        <div className="container mx-auto text-center">
+          <div className="max-w-5xl mx-auto">
+            <div className="bg-gradient-to-r from-primary via-primary-hover to-primary rounded-3xl p-16 text-white shadow-2xl relative overflow-hidden">
+              <div className="absolute inset-0 bg-black/30"></div>
+              <div className="relative z-10">
+                <h1 className="text-5xl md:text-7xl font-black mb-8">
+                  WELCOME TO YOUR
+                </h1>
+                <div className="text-6xl md:text-9xl font-black mb-8 text-accent drop-shadow-lg">
+                  FAMILY HUB
+                </div>
+                <p className="text-xl md:text-2xl mb-8 opacity-90 font-medium">
+                  YOUR CENTRAL DASHBOARD FOR • FAMILY CONNECTIONS • COMMUNITY EVENTS • SHARED RESOURCES
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="container mx-auto px-6 pb-12">
         <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold text-primary mb-4">Family Dashboard</h1>
-          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            Welcome to our community platform. Connect, share, and grow together.
-          </p>
+          <h2 className="text-4xl font-bold text-white mb-6">
+            FAMILY DASHBOARD
+          </h2>
+          <div className="w-32 h-2 bg-accent mx-auto rounded-full"></div>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-8 max-w-7xl mx-auto">
