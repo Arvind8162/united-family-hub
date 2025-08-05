@@ -11,6 +11,13 @@ import Home from "./pages/Home";
 import About from "./pages/About";
 import Events from "./pages/Events";
 import Directory from "./pages/Directory";
+import Family from "./pages/Family";
+import Job from "./pages/Job";
+import Donation from "./pages/Donation";
+import Contact from "./pages/Contact";
+import Classified from "./pages/Classified";
+import Community from "./pages/Community";
+import BuySell from "./pages/BuySell";
 import Login from "./pages/Login";
 import Admin from "./pages/Admin";
 import NotFound from "./pages/NotFound";
@@ -37,18 +44,18 @@ const App = () => (
                         <Route path="/about" element={<About />} />
                         <Route path="/events" element={<Events />} />
                         <Route path="/directory" element={<Directory />} />
+                        <Route path="/family" element={<Family />} />
+                        <Route path="/job" element={<Job />} />
+                        <Route path="/donation" element={<Donation />} />
+                        <Route path="/contact" element={<Contact />} />
+                        <Route path="/classified" element={<Classified />} />
+                        <Route path="/community" element={<Community />} />
+                        <Route path="/buy-sell" element={<BuySell />} />
                         <Route path="/admin" element={
                           <ProtectedRoute adminOnly>
                             <Admin />
                           </ProtectedRoute>
                         } />
-                        <Route path="/family" element={<Home />} />
-                        <Route path="/job" element={<Home />} />
-                        <Route path="/donation" element={<Home />} />
-                        <Route path="/contact" element={<Home />} />
-                        <Route path="/classified" element={<Home />} />
-                        <Route path="/community" element={<Home />} />
-                        <Route path="/buy-sell" element={<Home />} />
                         {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                         <Route path="*" element={<NotFound />} />
                       </Routes>
