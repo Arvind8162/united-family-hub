@@ -5,12 +5,6 @@ import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
-import { useLocalStorage } from '@/hooks/useLocalStorage';
-import SearchFilter from '@/components/SearchFilter';
-import ConfirmDialog from '@/components/ConfirmDialog';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 interface FamilyMember {
   id: number;
@@ -26,8 +20,8 @@ const Family = () => {
   const { isAdmin } = useAuth();
   const { toast } = useToast();
   const [searchTerm, setSearchTerm] = useState('');
-  const [filterRelation, setFilterRelation] = useState('');
-  const [familyMembers, setFamilyMembers] = useLocalStorage<FamilyMember[]>('familyMembers', [
+  
+  const [familyMembers] = useState<FamilyMember[]>([
     {
       id: 1,
       name: 'Rajesh Patel',
@@ -83,38 +77,12 @@ const Family = () => {
       photo: 'fas fa-user-circle'
     }
   ]);
-  
-  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
-  const [deleteConfirm, setDeleteConfirm] = useState<{ isOpen: boolean; memberId: number | null }>({
-    isOpen: false,
-    memberId: null
-  });
-  const [newMember, setNewMember] = useState({
-    name: '',
-    relation: '',
-    phone: '',
-    email: '',
-    location: ''
-  });
 
-  const relationOptions = [
-    { value: 'Head of Family', label: 'Head of Family' },
-    { value: 'Spouse', label: 'Spouse' },
-    { value: 'Son', label: 'Son' },
-    { value: 'Daughter', label: 'Daughter' },
-    { value: 'Uncle', label: 'Uncle' },
-    { value: 'Aunt', label: 'Aunt' },
-    { value: 'Cousin', label: 'Cousin' },
-    { value: 'Grandparent', label: 'Grandparent' },
-    { value: 'Other', label: 'Other' }
-  ];
-
-  const filteredMembers = familyMembers.filter(member => {
-    const matchesSearch = member.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         member.location.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesRelation = !filterRelation || member.relation === filterRelation;
-    return matchesSearch && matchesRelation;
-  });
+  const filteredMembers = familyMembers.filter(member =>
+    member.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    member.relation.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    member.location.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   const getRelationColor = (relation: string) => {
     switch (relation.toLowerCase()) {
@@ -123,42 +91,6 @@ const Family = () => {
       case 'son': case 'daughter': return 'bg-accent text-accent-foreground';
       default: return 'bg-muted text-muted-foreground';
     }
-  };
-
-  const handleAddMember = () => {
-    if (!newMember.name || !newMember.relation || !newMember.phone || !newMember.email) {
-      toast({
-        title: "Missing Information",
-        description: "Please fill in all required fields.",
-        variant: "destructive"
-      });
-      return;
-    }
-
-    const member: FamilyMember = {
-      id: Date.now(),
-      ...newMember,
-      photo: 'fas fa-user-circle'
-    };
-
-    setFamilyMembers(prev => [...prev, member]);
-    setNewMember({ name: '', relation: '', phone: '', email: '', location: '' });
-    setIsAddDialogOpen(false);
-    
-    toast({
-      title: "Member Added",
-      description: `${newMember.name} has been added to the family directory.`,
-    });
-  };
-
-  const handleDeleteMember = (memberId: number) => {
-    setFamilyMembers(prev => prev.filter(member => member.id !== memberId));
-    setDeleteConfirm({ isOpen: false, memberId: null });
-    
-    toast({
-      title: "Member Removed",
-      description: "Family member has been removed from the directory.",
-    });
   };
 
   const handleCall = (phone: string) => {
@@ -180,15 +112,15 @@ const Family = () => {
         </div>
 
         <div className="max-w-6xl mx-auto">
-          <SearchFilter
-            searchTerm={searchTerm}
-            onSearchChange={setSearchTerm}
-            filterValue={filterRelation}
-            onFilterChange={setFilterRelation}
-            filterOptions={relationOptions}
-            placeholder="Search family members..."
-            className="mb-6"
-          />
+          <div className="mb-6">
+            <Input
+              type="text"
+              placeholder="Search family members..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="max-w-md mx-auto"
+            />
+          </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredMembers.map((member) => (
@@ -235,16 +167,6 @@ const Family = () => {
                         <i className="fas fa-envelope mr-2"></i>
                         Email
                       </Button>
-                      {isAdmin && (
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => setDeleteConfirm({ isOpen: true, memberId: member.id })}
-                          className="text-destructive hover:bg-destructive hover:text-destructive-foreground"
-                        >
-                          <i className="fas fa-trash"></i>
-                        </Button>
-                      )}
                     </div>
                   </div>
                 </CardContent>
@@ -261,94 +183,19 @@ const Family = () => {
 
           {isAdmin && (
             <div className="text-center mt-12">
-              <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
-                <DialogTrigger asChild>
-                  <Button size="lg" className="bg-accent hover:bg-accent/90 text-accent-foreground">
-                    <i className="fas fa-plus mr-2"></i>
-                    Add Family Member
-                  </Button>
-                </DialogTrigger>
-                <DialogContent className="max-w-md">
-                  <DialogHeader>
-                    <DialogTitle>Add New Family Member</DialogTitle>
-                  </DialogHeader>
-                  <div className="space-y-4">
-                    <div>
-                      <Label htmlFor="name">Full Name *</Label>
-                      <Input
-                        id="name"
-                        value={newMember.name}
-                        onChange={(e) => setNewMember(prev => ({ ...prev, name: e.target.value }))}
-                        placeholder="Enter full name"
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="relation">Relation *</Label>
-                      <Select value={newMember.relation} onValueChange={(value) => setNewMember(prev => ({ ...prev, relation: value }))}>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select relation" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {relationOptions.map((option) => (
-                            <SelectItem key={option.value} value={option.value}>
-                              {option.label}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div>
-                      <Label htmlFor="phone">Phone Number *</Label>
-                      <Input
-                        id="phone"
-                        value={newMember.phone}
-                        onChange={(e) => setNewMember(prev => ({ ...prev, phone: e.target.value }))}
-                        placeholder="+91-98765-43210"
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="email">Email Address *</Label>
-                      <Input
-                        id="email"
-                        type="email"
-                        value={newMember.email}
-                        onChange={(e) => setNewMember(prev => ({ ...prev, email: e.target.value }))}
-                        placeholder="email@example.com"
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="location">Location</Label>
-                      <Input
-                        id="location"
-                        value={newMember.location}
-                        onChange={(e) => setNewMember(prev => ({ ...prev, location: e.target.value }))}
-                        placeholder="City, State"
-                      />
-                    </div>
-                    <div className="flex gap-2 pt-4">
-                      <Button onClick={handleAddMember} className="flex-1">
-                        Add Member
-                      </Button>
-                      <Button variant="outline" onClick={() => setIsAddDialogOpen(false)} className="flex-1">
-                        Cancel
-                      </Button>
-                    </div>
-                  </div>
-                </DialogContent>
-              </Dialog>
+              <Button
+                size="lg"
+                onClick={() => toast({
+                  title: "Add Family Member",
+                  description: "This feature will be available soon!",
+                })}
+                className="bg-accent hover:bg-accent/90 text-accent-foreground"
+              >
+                <i className="fas fa-plus mr-2"></i>
+                Add Family Member
+              </Button>
             </div>
           )}
-
-          {/* Delete Confirmation Dialog */}
-          <ConfirmDialog
-            isOpen={deleteConfirm.isOpen}
-            onClose={() => setDeleteConfirm({ isOpen: false, memberId: null })}
-            onConfirm={() => deleteConfirm.memberId && handleDeleteMember(deleteConfirm.memberId)}
-            title="Remove Family Member"
-            description="Are you sure you want to remove this family member from the directory? This action cannot be undone."
-            confirmText="Remove"
-            variant="destructive"
-          />
         </div>
       </div>
     </div>

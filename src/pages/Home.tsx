@@ -15,13 +15,13 @@ const Home = () => {
     { icon: 'fas fa-briefcase', title: 'Job', path: '/job' },
     { icon: 'fas fa-shopping-cart', title: 'Buy/Sell', path: '/buy-sell' },
     { icon: 'fas fa-hand-holding-heart', title: 'Donation', path: '/donation' },
-    { icon: 'fas fa-envelope', title: 'Contact', path: '/contact' },
-    { icon: 'fas fa-images', title: 'Photo Gallery', path: '/gallery' },
-    { icon: 'fas fa-user-circle', title: 'My Profile', path: '/profile' },
   ];
 
-  const handleCardClick = (path: string) => {
-    // Navigation is handled by Link in DashboardCard
+  const handleCardClick = (title: string) => {
+    toast({
+      title: `${title} Section`,
+      description: `Welcome to the ${title} section. This feature will be available soon!`,
+    });
   };
 
   return (
@@ -56,13 +56,14 @@ const Home = () => {
           <div className="w-32 h-2 bg-accent mx-auto rounded-full"></div>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-8 max-w-7xl mx-auto">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-8 max-w-7xl mx-auto">
           {dashboardItems.map((item, index) => (
             <DashboardCard
               key={index}
               icon={item.icon}
               title={item.title}
               path={item.path}
+              onClick={() => handleCardClick(item.title)}
             />
           ))}
         </div>

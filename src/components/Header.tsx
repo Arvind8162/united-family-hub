@@ -19,7 +19,8 @@ const Header = () => {
     { label: 'About', path: '/about' },
     { label: 'Events', path: '/events' },
     { label: 'My Family', path: '/family' },
-    { label: 'Gallery', path: '/gallery' },
+    { label: 'Job', path: '/job' },
+    { label: 'Donation', path: '/donation' },
     { label: 'Contact', path: '/contact' },
   ];
 
@@ -39,9 +40,6 @@ const Header = () => {
               <span className="text-accent font-semibold px-3 py-1 bg-accent/10 rounded">Directory</span>
               <div className="flex items-center gap-2">
                 <span className="text-muted-foreground">Welcome, {user?.username}</span>
-                <Link to="/profile" className="text-primary hover:underline">
-                  Profile
-                </Link>
                 {isAdmin && (
                   <Link to="/admin" className="text-primary hover:underline">
                     Admin

@@ -18,8 +18,6 @@ import Contact from "./pages/Contact";
 import Classified from "./pages/Classified";
 import Community from "./pages/Community";
 import BuySell from "./pages/BuySell";
-import UserProfile from "./pages/UserProfile";
-import PhotoGallery from "./pages/PhotoGallery";
 import Login from "./pages/Login";
 import Admin from "./pages/Admin";
 import NotFound from "./pages/NotFound";
@@ -53,8 +51,6 @@ const App = () => (
                         <Route path="/classified" element={<Classified />} />
                         <Route path="/community" element={<Community />} />
                         <Route path="/buy-sell" element={<BuySell />} />
-                        <Route path="/profile" element={<UserProfile />} />
-                        <Route path="/gallery" element={<PhotoGallery />} />
                         <Route path="/admin" element={
                           <ProtectedRoute adminOnly>
                             <Admin />
