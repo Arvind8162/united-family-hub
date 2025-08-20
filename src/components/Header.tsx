@@ -1,12 +1,16 @@
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Button } from './ui/button';
-import { useAuth } from '../contexts/AuthContext';
+import { useAuth } from '../contexts/SupabaseAuthContext';
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const location = useLocation();
-  const { user, logout, isAdmin } = useAuth();
+  const { profile, signOut, isAdmin } = useAuth();
+
+  const handleLogout = async () => {
+    await signOut();
+  };
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
@@ -39,7 +43,7 @@ const Header = () => {
               <span className="text-secondary font-semibold px-3 py-1 bg-secondary/10 rounded">Community</span>
               <span className="text-accent font-semibold px-3 py-1 bg-accent/10 rounded">Directory</span>
               <div className="flex items-center gap-2">
-                <span className="text-muted-foreground">Welcome, {user?.username}</span>
+                <span className="text-muted-foreground">Welcome, {profile?.full_name}</span>
                 {isAdmin && (
                   <Link to="/admin" className="text-primary hover:underline">
                     Admin
@@ -48,7 +52,7 @@ const Header = () => {
                 <Button 
                   variant="ghost" 
                   size="sm" 
-                  onClick={logout}
+                  onClick={handleLogout}
                   className="text-destructive hover:bg-destructive/10"
                 >
                   Logout
@@ -149,7 +153,7 @@ const Header = () => {
                   <Button
                     variant="ghost"
                     size="sm"
-                    onClick={logout}
+                    onClick={handleLogout}
                     className="text-white hover:text-accent hover:bg-white/10 justify-start px-0"
                   >
                     <i className="fas fa-sign-out-alt mr-2"></i>
