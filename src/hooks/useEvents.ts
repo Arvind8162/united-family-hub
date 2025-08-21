@@ -51,9 +51,9 @@ export const useEvents = () => {
           is_registered: registeredEventIds.has(event.id)
         })) || [];
 
-        setEvents(eventsWithStatus);
+        setEvents(eventsWithStatus as unknown as Event[]);
       } else {
-        setEvents(data || []);
+        setEvents((data || []) as unknown as Event[]);
       }
     } catch (error) {
       console.error('Error fetching events:', error);

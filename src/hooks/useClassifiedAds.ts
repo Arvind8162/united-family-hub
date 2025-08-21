@@ -38,7 +38,7 @@ export const useClassifiedAds = () => {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      setAds(data || []);
+      setAds((data || []) as unknown as ClassifiedAd[]);
     } catch (error) {
       console.error('Error fetching classified ads:', error);
     } finally {

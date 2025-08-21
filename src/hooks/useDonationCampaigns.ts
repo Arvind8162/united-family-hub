@@ -63,7 +63,7 @@ export const useDonationCampaigns = () => {
         };
       }) || [];
 
-      setCampaigns(campaignsWithMetadata);
+      setCampaigns(campaignsWithMetadata as unknown as DonationCampaign[]);
     } catch (error) {
       console.error('Error fetching campaigns:', error);
     } finally {
@@ -111,7 +111,7 @@ export const useDonationCampaigns = () => {
     if (error) throw error;
 
     // Update campaign raised amount
-    const { error: updateError } = await supabase.rpc('increment_donation_amount', {
+    const { error: updateError } = await supabase.rpc('increment_donation_amount' as any, {
       campaign_id: campaignId,
       amount_to_add: amount
     });

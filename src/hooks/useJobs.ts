@@ -58,9 +58,9 @@ export const useJobs = () => {
           has_applied: appliedJobIds.has(job.id)
         })) || [];
 
-        setJobs(jobsWithStatus);
+        setJobs(jobsWithStatus as unknown as Job[]);
       } else {
-        setJobs(data || []);
+        setJobs((data || []) as unknown as Job[]);
       }
     } catch (error) {
       console.error('Error fetching jobs:', error);

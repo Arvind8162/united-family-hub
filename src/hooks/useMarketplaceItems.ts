@@ -40,7 +40,7 @@ export const useMarketplaceItems = () => {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      setItems(data || []);
+      setItems((data || []) as unknown as MarketplaceItem[]);
     } catch (error) {
       console.error('Error fetching marketplace items:', error);
     } finally {
