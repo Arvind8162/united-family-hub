@@ -628,6 +628,10 @@ export type Database = {
         }
         Returns: boolean
       }
+      increment_donation_amount: {
+        Args: { amount_to_add: number; campaign_id: string }
+        Returns: undefined
+      }
     }
     Enums: {
       app_role: "admin" | "moderator" | "user"
