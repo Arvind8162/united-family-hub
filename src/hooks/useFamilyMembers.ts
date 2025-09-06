@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import { supabase } from '../integrations/supabase/client';
 import { useAuth } from '../contexts/SupabaseAuthContext';
 
 export interface FamilyMember {
@@ -17,64 +16,26 @@ export interface FamilyMember {
 
 export const useFamilyMembers = () => {
   const [familyMembers, setFamilyMembers] = useState<FamilyMember[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const { user } = useAuth();
 
   const fetchFamilyMembers = async () => {
-    try {
-      setLoading(true);
-      const { data, error } = await supabase
-        .from('family_members')
-        .select('*')
-        .order('name', { ascending: true });
-
-      if (error) throw error;
-      setFamilyMembers(data || []);
-    } catch (error) {
-      console.error('Error fetching family members:', error);
-    } finally {
-      setLoading(false);
-    }
+    // TODO: Enable when family_members table is created
+    setFamilyMembers([]);
   };
 
   const createFamilyMember = async (memberData: Omit<FamilyMember, 'id' | 'created_at' | 'updated_at' | 'added_by'>) => {
     if (!user) throw new Error('User must be authenticated');
-
-    const { data, error } = await supabase
-      .from('family_members')
-      .insert([{
-        ...memberData,
-        added_by: user.id
-      }])
-      .select()
-      .single();
-
-    if (error) throw error;
-    
-    await fetchFamilyMembers();
-    return data;
+    console.log('Creating family member (disabled):', memberData);
+    return null;
   };
 
   const updateFamilyMember = async (id: string, memberData: Partial<FamilyMember>) => {
-    const { error } = await supabase
-      .from('family_members')
-      .update(memberData)
-      .eq('id', id);
-
-    if (error) throw error;
-    
-    await fetchFamilyMembers();
+    console.log('Updating family member (disabled):', id, memberData);
   };
 
   const deleteFamilyMember = async (id: string) => {
-    const { error } = await supabase
-      .from('family_members')
-      .delete()
-      .eq('id', id);
-
-    if (error) throw error;
-    
-    await fetchFamilyMembers();
+    console.log('Deleting family member (disabled):', id);
   };
 
   useEffect(() => {

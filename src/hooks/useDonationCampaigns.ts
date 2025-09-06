@@ -40,30 +40,31 @@ export const useDonationCampaigns = () => {
   const fetchCampaigns = async () => {
     try {
       setLoading(true);
-      const { data, error } = await supabase
-        .from('donation_campaigns')
-        .select(`
-          *,
-          donations!inner(count)
-        `)
-        .eq('is_active', true)
-        .order('created_at', { ascending: false });
+      // TODO: Enable when donation_campaigns table is created
+      // const { data, error } = await supabase
+      //   .from('donation_campaigns')
+      //   .select(`
+      //     *,
+      //     donations!inner(count)
+      //   `)
+      //   .eq('is_active', true)
+      //   .order('created_at', { ascending: false });
 
-      if (error) throw error;
+      // if (error) throw error;
 
-      const campaignsWithMetadata = data?.map(campaign => {
-        const endDate = new Date(campaign.end_date);
-        const today = new Date();
-        const daysLeft = Math.ceil((endDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
-        
-        return {
-          ...campaign,
-          donors_count: campaign.donations?.length || 0,
-          days_left: Math.max(0, daysLeft)
-        };
-      }) || [];
+      // const campaignsWithMetadata = data?.map(campaign => {
+      //   const endDate = new Date(campaign.end_date);
+      //   const today = new Date();
+      //   const daysLeft = Math.ceil((endDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+      //   
+      //   return {
+      //     ...campaign,
+      //     donors_count: campaign.donations?.length || 0,
+      //     days_left: Math.max(0, daysLeft)
+      //   };
+      // }) || [];
 
-      setCampaigns(campaignsWithMetadata as unknown as DonationCampaign[]);
+      setCampaigns([]); // Return empty array for now
     } catch (error) {
       console.error('Error fetching campaigns:', error);
     } finally {
@@ -74,76 +75,88 @@ export const useDonationCampaigns = () => {
   const createCampaign = async (campaignData: Omit<DonationCampaign, 'id' | 'created_at' | 'updated_at' | 'created_by' | 'raised_amount' | 'is_active'>) => {
     if (!user) throw new Error('User must be authenticated');
 
-    const { data, error } = await supabase
-      .from('donation_campaigns')
-      .insert([{
-        ...campaignData,
-        created_by: user.id,
-        raised_amount: 0,
-        is_active: true
-      }])
-      .select()
-      .single();
+    // TODO: Enable when donation_campaigns table is created
+    // const { data, error } = await supabase
+    //   .from('donation_campaigns')
+    //   .insert([{
+    //     ...campaignData,
+    //     created_by: user.id,
+    //     raised_amount: 0,
+    //     is_active: true
+    //   }])
+    //   .select()
+    //   .single();
 
-    if (error) throw error;
+    // if (error) throw error;
     
-    await fetchCampaigns();
-    return data;
+    // await fetchCampaigns();
+    // return data;
+    
+    console.log('Creating campaign (disabled):', campaignData);
+    return null;
   };
 
   const donate = async (campaignId: string, amount: number, donorName?: string, message?: string, isAnonymous: boolean = false) => {
     if (!user) throw new Error('User must be authenticated');
 
-    const { data, error } = await supabase
-      .from('donations')
-      .insert([{
-        campaign_id: campaignId,
-        donor_id: user.id,
-        amount,
-        donor_name: donorName,
-        message,
-        is_anonymous: isAnonymous,
-        payment_status: 'completed' // In real app, this would be 'pending' until payment is processed
-      }])
-      .select()
-      .single();
+    // TODO: Enable when donations table is created
+    // const { data, error } = await supabase
+    //   .from('donations')
+    //   .insert([{
+    //     campaign_id: campaignId,
+    //     donor_id: user.id,
+    //     amount,
+    //     donor_name: donorName,
+    //     message,
+    //     is_anonymous: isAnonymous,
+    //     payment_status: 'completed' // In real app, this would be 'pending' until payment is processed
+    //   }])
+    //   .select()
+    //   .single();
 
-    if (error) throw error;
+    // if (error) throw error;
 
-    // Update campaign raised amount
-    const { error: updateError } = await supabase.rpc('increment_donation_amount' as any, {
-      campaign_id: campaignId,
-      amount_to_add: amount
-    });
+    // // Update campaign raised amount
+    // const { error: updateError } = await supabase.rpc('increment_donation_amount' as any, {
+    //   campaign_id: campaignId,
+    //   amount_to_add: amount
+    // });
 
-    if (updateError) {
-      console.error('Error updating campaign amount:', updateError);
-    }
+    // if (updateError) {
+    //   console.error('Error updating campaign amount:', updateError);
+    // }
     
-    await fetchCampaigns();
-    return data;
+    // await fetchCampaigns();
+    // return data;
+    
+    console.log('Donating (disabled):', { campaignId, amount, donorName, message, isAnonymous });
+    return null;
   };
 
   const updateCampaign = async (id: string, campaignData: Partial<DonationCampaign>) => {
-    const { error } = await supabase
-      .from('donation_campaigns')
-      .update(campaignData)
-      .eq('id', id);
+    // TODO: Enable when donation_campaigns table is created
+    // const { error } = await supabase
+    //   .from('donation_campaigns')
+    //   .update(campaignData)
+    //   .eq('id', id);
 
-    if (error) throw error;
+    // if (error) throw error;
     
-    await fetchCampaigns();
+    // await fetchCampaigns();
+    console.log('Updating campaign (disabled):', id, campaignData);
   };
 
   const deactivateCampaign = async (id: string) => {
-    const { error } = await supabase
-      .from('donation_campaigns')
-      .update({ is_active: false })
-      .eq('id', id);
+    // TODO: Enable when donation_campaigns table is created
+    // const { error } = await supabase
+    //   .from('donation_campaigns')
+    //   .update({ is_active: false })
+    //   .eq('id', id);
 
-    if (error) throw error;
+    // if (error) throw error;
     
-    await fetchCampaigns();
+    // await fetchCampaigns();
+    console.log('Deactivating campaign (disabled):', id);
   };
 
   useEffect(() => {
