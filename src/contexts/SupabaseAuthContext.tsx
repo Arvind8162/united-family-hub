@@ -48,7 +48,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       if (profileError) {
         console.error('Error fetching profile:', profileError);
-        return;
+        // Don't return early - the profile might still be created by trigger
       }
 
       // If no profile exists, it will be created by the trigger, so we can wait a bit and retry
