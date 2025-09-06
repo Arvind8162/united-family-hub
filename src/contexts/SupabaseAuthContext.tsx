@@ -44,10 +44,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         .from('profiles')
         .select('*')
         .eq('user_id', userId)
-        .single();
+        .maybeSingle();
 
       if (profileError) {
         console.error('Error fetching profile:', profileError);
+        return;
+      }
+
+      // If no profile exists, it will be created by the trigger, so we can wait a bit and retry
+      if (!profileData) {
+        console.log('Profile not found, waiting for trigger to create it...');
+        setTimeout(() => {
+          fetchUserProfile(userId);
+        }, 1000);
         return;
       }
 
@@ -61,7 +70,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       setProfile({
         ...profileData,
-        role: roleData?.[0]?.role || 'user'
+        role: (roleData?.[0]?.role as 'admin' | 'moderator' | 'user') || 'user'
       });
     } catch (error) {
       console.error('Error in fetchUserProfile:', error);
