@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/SupabaseAuthContext';
+import { supabase } from '../integrations/supabase/client';
 
 export interface FamilyMember {
   id: string;
@@ -16,26 +17,76 @@ export interface FamilyMember {
 
 export const useFamilyMembers = () => {
   const [familyMembers, setFamilyMembers] = useState<FamilyMember[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const { user } = useAuth();
 
   const fetchFamilyMembers = async () => {
-    // TODO: Enable when family_members table is created
-    setFamilyMembers([]);
+    try {
+      setLoading(true);
+      const { data, error } = await (supabase as any)
+        .from('family_members')
+        .select('*')
+        .order('name', { ascending: true });
+
+      if (error) throw error;
+      setFamilyMembers(data || []);
+    } catch (error) {
+      console.error('Error fetching family members:', error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const createFamilyMember = async (memberData: Omit<FamilyMember, 'id' | 'created_at' | 'updated_at' | 'added_by'>) => {
     if (!user) throw new Error('User must be authenticated');
-    console.log('Creating family member (disabled):', memberData);
-    return null;
+    
+    try {
+      const { data, error } = await (supabase as any)
+        .from('family_members')
+        .insert([{
+          ...memberData,
+          added_by: user.id
+        }])
+        .select()
+        .single();
+
+      if (error) throw error;
+      await fetchFamilyMembers();
+      return data;
+    } catch (error) {
+      console.error('Error creating family member:', error);
+      throw error;
+    }
   };
 
   const updateFamilyMember = async (id: string, memberData: Partial<FamilyMember>) => {
-    console.log('Updating family member (disabled):', id, memberData);
+    try {
+      const { error } = await (supabase as any)
+        .from('family_members')
+        .update(memberData)
+        .eq('id', id);
+
+      if (error) throw error;
+      await fetchFamilyMembers();
+    } catch (error) {
+      console.error('Error updating family member:', error);
+      throw error;
+    }
   };
 
   const deleteFamilyMember = async (id: string) => {
-    console.log('Deleting family member (disabled):', id);
+    try {
+      const { error } = await (supabase as any)
+        .from('family_members')
+        .delete()
+        .eq('id', id);
+
+      if (error) throw error;
+      await fetchFamilyMembers();
+    } catch (error) {
+      console.error('Error deleting family member:', error);
+      throw error;
+    }
   };
 
   useEffect(() => {
