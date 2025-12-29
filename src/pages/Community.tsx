@@ -90,7 +90,7 @@ const Community = () => {
     }
 
     try {
-      await createPost({ title: newPost.title, content: newPost.content, category: newPost.category as any });
+      await createPost({ title: newPost.title, content: newPost.content, category: newPost.category as any, images: null });
       setNewPost({ title: '', content: '', category: 'discussion' });
       setIsDialogOpen(false);
       toast({ title: "Success", description: "Post created successfully!" });

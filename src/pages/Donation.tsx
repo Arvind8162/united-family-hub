@@ -101,6 +101,7 @@ const Donation = () => {
     try {
       await createCampaign({
         ...newCampaign,
+        category: newCampaign.category as any,
         target_amount: parseFloat(newCampaign.target_amount),
         image_url: null
       });
