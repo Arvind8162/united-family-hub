@@ -3,102 +3,30 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
-import { useAuth } from '@/contexts/AuthContext';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { useAuth } from '@/contexts/NewAuthContext';
 import { useToast } from '@/hooks/use-toast';
-
-interface ClassifiedAd {
-  id: number;
-  title: string;
-  description: string;
-  category: 'services' | 'housing' | 'vehicles' | 'electronics' | 'furniture' | 'other';
-  price: string;
-  contact: string;
-  location: string;
-  postedBy: string;
-  postedDate: string;
-  image: string;
-}
+import { useClassifiedAds } from '@/hooks/useClassifiedAds';
+import { Loader2, MapPin, User, Calendar, Phone, Plus, Search } from 'lucide-react';
 
 const Classified = () => {
-  const { isAdmin } = useAuth();
+  const { user } = useAuth();
   const { toast } = useToast();
+  const { ads, loading, createAd } = useClassifiedAds();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
-  
-  const [classifiedAds] = useState<ClassifiedAd[]>([
-    {
-      id: 1,
-      title: 'Experienced Home Tutor Available',
-      description: 'Mathematics and Science tutor for grades 6-12. 10+ years experience. Available for home visits.',
-      category: 'services',
-      price: '₹500/hour',
-      contact: '+91-98765-43210',
-      location: 'Mumbai, India',
-      postedBy: 'Dr. Rajesh Sharma',
-      postedDate: '2025-01-20',
-      image: 'fas fa-chalkboard-teacher'
-    },
-    {
-      id: 2,
-      title: '2BHK Apartment for Rent',
-      description: 'Well-furnished 2BHK apartment in prime location. Family-friendly society with all amenities.',
-      category: 'housing',
-      price: '₹25,000/month',
-      contact: '+91-98765-43211',
-      location: 'Pune, India',
-      postedBy: 'Priya Patel',
-      postedDate: '2025-01-22',
-      image: 'fas fa-home'
-    },
-    {
-      id: 3,
-      title: 'Honda City 2018 for Sale',
-      description: 'Well-maintained Honda City 2018 model. Single owner, all documents clear. Recently serviced.',
-      category: 'vehicles',
-      price: '₹8,50,000',
-      contact: '+91-98765-43212',
-      location: 'Bangalore, India',
-      postedBy: 'Arjun Kumar',
-      postedDate: '2025-01-25',
-      image: 'fas fa-car'
-    },
-    {
-      id: 4,
-      title: 'iPhone 13 Pro for Sale',
-      description: 'iPhone 13 Pro 128GB in excellent condition. All accessories included with original box.',
-      category: 'electronics',
-      price: '₹65,000',
-      contact: '+91-98765-43213',
-      location: 'Delhi, India',
-      postedBy: 'Kavya Singh',
-      postedDate: '2025-01-26',
-      image: 'fas fa-mobile-alt'
-    },
-    {
-      id: 5,
-      title: 'Dining Table Set',
-      description: 'Beautiful 6-seater dining table with chairs. Solid wood construction in excellent condition.',
-      category: 'furniture',
-      price: '₹18,000',
-      contact: '+91-98765-43214',
-      location: 'Ahmedabad, India',
-      postedBy: 'Ramesh Joshi',
-      postedDate: '2025-01-28',
-      image: 'fas fa-utensils'
-    },
-    {
-      id: 6,
-      title: 'Wedding Photography Services',
-      description: 'Professional wedding photographer with 8+ years experience. Affordable packages available.',
-      category: 'services',
-      price: 'Starting ₹25,000',
-      contact: '+91-98765-43215',
-      location: 'Mumbai, India',
-      postedBy: 'Sita Photographer',
-      postedDate: '2025-01-29',
-      image: 'fas fa-camera'
-    }
-  ]);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [newAd, setNewAd] = useState({
+    title: '',
+    description: '',
+    category: 'services' as const,
+    price: '',
+    contact_phone: '',
+    location: ''
+  });
 
   const categories = [
     { value: 'all', label: 'All Categories' },
@@ -110,7 +38,7 @@ const Classified = () => {
     { value: 'other', label: 'Other' }
   ];
 
-  const filteredAds = classifiedAds.filter(ad => {
+  const filteredAds = ads.filter(ad => {
     const matchesSearch = ad.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          ad.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          ad.location.toLowerCase().includes(searchTerm.toLowerCase());
@@ -129,23 +57,55 @@ const Classified = () => {
     }
   };
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric'
-    });
+  const getCategoryIcon = (category: string) => {
+    switch (category) {
+      case 'services': return '🛠️';
+      case 'housing': return '🏠';
+      case 'vehicles': return '🚗';
+      case 'electronics': return '📱';
+      case 'furniture': return '🪑';
+      default: return '📦';
+    }
   };
 
-  const handleContact = (ad: ClassifiedAd) => {
-    toast({
-      title: "Contact Information",
-      description: `Contact ${ad.postedBy} at ${ad.contact}`,
-    });
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
   };
+
+  const handleContact = (ad: any) => {
+    if (ad.contact_phone) {
+      toast({ title: "Contact Information", description: `Phone: ${ad.contact_phone}` });
+    } else {
+      toast({ title: "Contact", description: "Contact information not available" });
+    }
+  };
+
+  const handleCreateAd = async () => {
+    if (!newAd.title || !newAd.description || !newAd.location) {
+      toast({ title: "Error", description: "Please fill in all required fields", variant: "destructive" });
+      return;
+    }
+
+    try {
+      await createAd({ ...newAd, images: null });
+      setNewAd({ title: '', description: '', category: 'services', price: '', contact_phone: '', location: '' });
+      setIsDialogOpen(false);
+      toast({ title: "Success", description: "Ad posted successfully!" });
+    } catch (error) {
+      toast({ title: "Error", description: "Failed to post ad", variant: "destructive" });
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
 
   return (
-    <div className="min-h-screen bg-dashboard-bg">
+    <div className="min-h-screen bg-background">
       <div className="container mx-auto px-6 py-8">
         <div className="text-center mb-8">
           <h1 className="text-4xl font-bold text-primary mb-4">Classified Ads</h1>
@@ -180,73 +140,114 @@ const Classified = () => {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredAds.map((ad) => (
-              <Card key={ad.id} className="hover:shadow-lg transition-shadow duration-300">
-                <CardHeader>
-                  <div className="flex justify-between items-start mb-2">
-                    <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center">
-                      <i className={`${ad.image} text-primary`}></i>
-                    </div>
-                    <Badge className={getCategoryColor(ad.category)}>
-                      {ad.category}
-                    </Badge>
-                  </div>
-                  <CardTitle className="text-lg text-primary">{ad.title}</CardTitle>
-                  <div className="text-2xl font-bold text-secondary">{ad.price}</div>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-3">
-                    <p className="text-muted-foreground text-sm leading-relaxed">{ad.description}</p>
-                    
-                    <div className="space-y-1 text-sm">
-                      <div className="flex items-center gap-2">
-                        <i className="fas fa-map-marker-alt text-primary w-4"></i>
-                        <span className="text-muted-foreground">{ad.location}</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <i className="fas fa-user text-primary w-4"></i>
-                        <span className="text-muted-foreground">{ad.postedBy}</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <i className="fas fa-calendar text-primary w-4"></i>
-                        <span className="text-muted-foreground">{formatDate(ad.postedDate)}</span>
-                      </div>
-                    </div>
-                    
-                    <Button
-                      className="w-full mt-4"
-                      onClick={() => handleContact(ad)}
-                    >
-                      <i className="fas fa-phone mr-2"></i>
-                      Contact Seller
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-
-          {filteredAds.length === 0 && (
+          {filteredAds.length === 0 ? (
             <div className="text-center py-12">
-              <i className="fas fa-search text-4xl text-muted-foreground mb-4"></i>
-              <p className="text-muted-foreground">No classified ads found matching your criteria.</p>
+              <Search className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+              <p className="text-muted-foreground mb-4">No classified ads found.</p>
+              {user && (
+                <Button onClick={() => setIsDialogOpen(true)}>
+                  <Plus className="mr-2 h-4 w-4" /> Post Your First Ad
+                </Button>
+              )}
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {filteredAds.map((ad) => (
+                <Card key={ad.id} className="hover:shadow-lg transition-shadow duration-300">
+                  <CardHeader>
+                    <div className="flex justify-between items-start mb-2">
+                      <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center text-2xl">
+                        {getCategoryIcon(ad.category)}
+                      </div>
+                      <Badge className={getCategoryColor(ad.category)}>{ad.category}</Badge>
+                    </div>
+                    <CardTitle className="text-lg text-primary">{ad.title}</CardTitle>
+                    {ad.price && <div className="text-2xl font-bold text-secondary">{ad.price}</div>}
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-3">
+                      <p className="text-muted-foreground text-sm leading-relaxed line-clamp-3">{ad.description}</p>
+                      
+                      <div className="space-y-1 text-sm">
+                        <div className="flex items-center gap-2">
+                          <MapPin className="h-4 w-4 text-primary" />
+                          <span className="text-muted-foreground">{ad.location}</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Calendar className="h-4 w-4 text-primary" />
+                          <span className="text-muted-foreground">{formatDate(ad.created_at)}</span>
+                        </div>
+                      </div>
+                      
+                      <Button className="w-full mt-4" onClick={() => handleContact(ad)}>
+                        <Phone className="mr-2 h-4 w-4" /> Contact Seller
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
             </div>
           )}
 
-          {isAdmin && (
+          {user && (
             <div className="text-center mt-12">
-              <Button
-                size="lg"
-                onClick={() => toast({
-                  title: "Post Classified Ad",
-                  description: "This feature will be available soon!",
-                })}
-                className="bg-accent hover:bg-accent/90 text-accent-foreground"
-              >
-                <i className="fas fa-plus mr-2"></i>
-                Post Classified Ad
-              </Button>
+              <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+                <DialogTrigger asChild>
+                  <Button size="lg" className="bg-accent hover:bg-accent/90 text-accent-foreground">
+                    <Plus className="mr-2 h-4 w-4" /> Post Classified Ad
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="sm:max-w-[500px]">
+                  <DialogHeader>
+                    <DialogTitle>Post Classified Ad</DialogTitle>
+                    <DialogDescription>Create a new classified ad for the community.</DialogDescription>
+                  </DialogHeader>
+                  <div className="grid gap-4 py-4">
+                    <div className="grid gap-2">
+                      <Label htmlFor="title">Title *</Label>
+                      <Input id="title" value={newAd.title} onChange={(e) => setNewAd({...newAd, title: e.target.value})} placeholder="What are you offering?" />
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="grid gap-2">
+                        <Label htmlFor="category">Category *</Label>
+                        <Select value={newAd.category} onValueChange={(value: any) => setNewAd({...newAd, category: value})}>
+                          <SelectTrigger><SelectValue /></SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="services">Services</SelectItem>
+                            <SelectItem value="housing">Housing</SelectItem>
+                            <SelectItem value="vehicles">Vehicles</SelectItem>
+                            <SelectItem value="electronics">Electronics</SelectItem>
+                            <SelectItem value="furniture">Furniture</SelectItem>
+                            <SelectItem value="other">Other</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="grid gap-2">
+                        <Label htmlFor="price">Price</Label>
+                        <Input id="price" value={newAd.price} onChange={(e) => setNewAd({...newAd, price: e.target.value})} placeholder="₹0" />
+                      </div>
+                    </div>
+                    <div className="grid gap-2">
+                      <Label htmlFor="description">Description *</Label>
+                      <Textarea id="description" value={newAd.description} onChange={(e) => setNewAd({...newAd, description: e.target.value})} placeholder="Describe your item or service" rows={3} />
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="grid gap-2">
+                        <Label htmlFor="location">Location *</Label>
+                        <Input id="location" value={newAd.location} onChange={(e) => setNewAd({...newAd, location: e.target.value})} placeholder="City, State" />
+                      </div>
+                      <div className="grid gap-2">
+                        <Label htmlFor="contact_phone">Contact Phone</Label>
+                        <Input id="contact_phone" value={newAd.contact_phone} onChange={(e) => setNewAd({...newAd, contact_phone: e.target.value})} placeholder="+91-XXXXX-XXXXX" />
+                      </div>
+                    </div>
+                  </div>
+                  <div className="flex justify-end gap-2">
+                    <Button variant="outline" onClick={() => setIsDialogOpen(false)}>Cancel</Button>
+                    <Button onClick={handleCreateAd}>Post Ad</Button>
+                  </div>
+                </DialogContent>
+              </Dialog>
             </div>
           )}
         </div>
