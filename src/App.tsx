@@ -3,10 +3,10 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { AuthProvider } from "./contexts/SupabaseAuthContext";
+import { AuthProvider } from "./contexts/NewAuthContext";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
-import ProtectedRoute from "./components/SupabaseProtectedRoute";
+import ProtectedRoute from "./components/NewProtectedRoute";
 import Home from "./pages/Home";
 import About from "./pages/About";
 import Events from "./pages/Events";
@@ -18,7 +18,7 @@ import Contact from "./pages/Contact";
 import Classified from "./pages/Classified";
 import Community from "./pages/Community";
 import BuySell from "./pages/BuySell";
-import Auth from "./pages/Auth";
+import AuthPage from "./pages/AuthPage";
 import Admin from "./pages/Admin";
 import NotFound from "./pages/NotFound";
 
@@ -33,7 +33,7 @@ const App = () => (
         <AuthProvider>
           <div className="min-h-screen flex flex-col">
             <Routes>
-              <Route path="/auth" element={<Auth />} />
+              <Route path="/auth" element={<AuthPage />} />
               <Route path="/*" element={
                 <ProtectedRoute>
                   <>
